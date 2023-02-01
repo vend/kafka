@@ -65,10 +65,11 @@ func (cgc *Config) Validate() error {
 type ConsumerGroup struct {
 	config *Config
 
-	consumer sarama.Consumer
-	kazoo    *kazoo.Kazoo
-	group    *kazoo.Consumergroup
-	instance *kazoo.ConsumergroupInstance
+	consumer   sarama.Consumer
+	kazoo      *kazoo.Kazoo
+	group      *kazoo.Consumergroup
+	instance   *kazoo.ConsumergroupInstance
+	partitions []*kazoo.Partition
 
 	wg             sync.WaitGroup
 	singleShutdown sync.Once
@@ -250,6 +251,14 @@ func (cg *ConsumerGroup) FlushOffsets() error {
 	return cg.offsetManager.Flush()
 }
 
+func (cg *ConsumerGroup) Instance() *kazoo.ConsumergroupInstance {
+	return cg.instance
+}
+
+func (cg *ConsumerGroup) Partitions() []*kazoo.Partition {
+	return cg.partitions
+}
+
 func (cg *ConsumerGroup) topicListConsumer(topics []string) {
 	for {
 		select {
@@ -336,6 +345,8 @@ func (cg *ConsumerGroup) topicConsumer(topic string, messages chan<- *sarama.Con
 	dividedPartitions := dividePartitionsBetweenConsumers(cg.consumers, partitionLeaders)
 	myPartitions := dividedPartitions[cg.instance.ID]
 	cg.Logf("%s :: Claiming %d of %d partitions", topic, len(myPartitions), len(partitionLeaders))
+
+	cg.partitions = myPartitions
 
 	// Consume all the assigned partitions
 	var wg sync.WaitGroup
