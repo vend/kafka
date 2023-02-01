@@ -1,5 +1,7 @@
 # kafka
 
+A fork of https://github.com/wvanbergen/kafka to expose a bit more information about consumer groups!
+
 Kafka libraries, tools and example applications built on top of the
 [sarama](https://github.com/Shopify/sarama) package.
 
