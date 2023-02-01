@@ -1,4 +1,4 @@
-module github.com/scott-the-programmer/kafka/consumergroup
+module github.com/vend/kafka/consumergroup
 
 go 1.19
 
